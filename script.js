@@ -16,14 +16,41 @@ filters.forEach((btn) => {
 
 function getTodos() {
   try {
-    return JSON.parse(localStorage.getItem("todo-list")) || [];
+    const todos = JSON.parse(localStorage.getItem("todo-list"));
+    return Array.isArray(todos) ? todos : [];
   } catch {
     return [];
   }
 }
 
+
 function saveTodos(todos) {
   localStorage.setItem("todo-list", JSON.stringify(todos));
+}
+
+taskInput.addEventListener("keyup", (e) => {
+  if (e.key === "Enter" && taskInput.value.trim().length > 0) {
+    addOrEditTask();
+  }
+});
+
+function addOrEditTask() {
+  const userTask = taskInput.value.trim();
+  if (!userTask) return;
+
+  const todos = getTodos();
+
+  if (editId !== null) {
+    const taskIndex = todos.findIndex((todo) => todo.id === editId);
+    if (taskIndex !== -1)
+      todos[taskIndex].name = userTask;
+    editId = null;
+  } else {
+    todos.push({ id: Date.now(), name: userTask, status: "pending" });
+  }
+  saveTodos(todos);
+  showTodo(document.querySelector("span.active").id);
+  taskInput.value = "";
 }
 
 function showTodo(filter) {
@@ -59,25 +86,20 @@ function showTodo(filter) {
   });
 }
 
-taskInput.addEventListener("keyup", (e) => {
-  const userTask = taskInput.value.trim();
-  if (e.key === "Enter" && userTask) {
-    const todos = getTodos();
+function showMenu(selectedTask) {
+  const taskMenu = selectedTask.parentElement.querySelector(".task-menu");
+  taskMenu.classList.toggle("show");
 
-    if (editId !== null) {
-      const taskIndex = todos.findIndex((todo) => todo.id === editId);
-      if (taskIndex !== -1) {
-        todos[taskIndex].name = userTask;
+  setTimeout(() => {
+    function removeMenu(e) {
+      if (!taskMenu.contains(e.target) && e.target !== selectedTask) {
+        taskMenu.classList.remove("show");
+        document.removeEventListener("click", removeMenu);
       }
-      editId = null;
-    } else {
-      todos.push({ id: Date.now(), name: userTask, status: "pending" });
     }
-    saveTodos(todos);
-    showTodo("all");
-    taskInput.value = ""; // Clear input field
-  }
-});
+    document.addEventListener("click", removeMenu, { once: true });
+  }, 0);
+}
 
 
 function updateStatus(task) {
@@ -90,22 +112,6 @@ function updateStatus(task) {
   todo.status = task.checked ? "completed" : "pending";
   saveTodos(todos);
   showTodo(document.querySelector("span.active").id);
-}
-
-function showMenu(selectedTask) {
-  const taskMenu = selectedTask.parentElement.querySelector(".task-menu");
-  taskMenu.classList.add("show");
-
-  setTimeout(() => {
-    function removeMenu(e) {
-      if (!taskMenu.contains(e.target) && e.target !== selectedTask) {
-        taskMenu.classList.remove("show");
-        document.removeEventListener("click", removeMenu);
-      }
-    }
-    document.addEventListener("click", removeMenu, { once: true });
-  }, 0);
-
 }
 
 function deleteTask(taskId) {
