@@ -46,7 +46,12 @@ function addOrEditTask() {
       todos[taskIndex].name = userTask;
     editId = null;
   } else {
-    todos.push({ id: Date.now(), name: userTask, status: "pending" });
+    const todo = {
+      id: Date.now(),
+      name: userTask,
+      status: "pending",
+    };
+    todos.push(todo);
   }
   saveTodos(todos);
   showTodo(document.querySelector("span.active").id);
