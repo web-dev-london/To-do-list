@@ -142,8 +142,8 @@ input::placeholder {
 }
 .task .settings .task-menu {
     position: absolute;
-    right: -5px;
-    bottom: -65px;
+    right: -2px;
+    bottom: -62px;
     padding: 8px 0;
     background: #fff;
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
@@ -153,6 +153,11 @@ input::placeholder {
     transition: transform 0.2s ease;
     z-index: 2;
 }
+
+.completed-task .task-menu {
+    bottom: -27px !important;
+}
+
 .task .settings .task-menu.show {
     transform: scale(1);
 }

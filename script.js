@@ -30,20 +30,21 @@ function showTodo(filter) {
   const todos = getTodos();
   let taskHtml = "";
   todos.forEach(({ id, name, status }) => {
-    let isCompleted = status === "completed" ? "checked" : "";
+    let isCompleted = status === "completed";
+    let completedClass = isCompleted ? "completed-task" : "";
     if (filter === 'all' || filter === status) {
       taskHtml += `
-    <li class="task">
+    <li class="task ${completedClass}">
       <label for="task-${id}">
-        <input onclick="updateStatus(this)" type="checkbox" id="task-${id}" ${isCompleted} />
+        <input onclick="updateStatus(this)" type="checkbox" id="task-${id}" ${isCompleted ? "checked" : ""} />
         <p class="${isCompleted ? "completed" : ""}">${name}</p>
       </label>
       <div class="settings">
         <i onclick="showMenu(this)" class="uil uil-ellipsis-h"></i>
         <ul class="task-menu">
-          <li onclick="editTask(${id}, '${name.replace(/'/g, "\\'")}')">
-            <i class="uil uil-pen"></i> Edit
-          </li>
+             ${isCompleted ? "" : `<li onclick="editTask(${id}, '${name.replace(/'/g, "\\'")}')">
+              <i class="uil uil-pen"></i> Edit
+            </li>`}
           <li onclick="deleteTask(${id})"><i class="uil uil-trash"></i> Delete</li>
         </ul>
       </div>
@@ -52,6 +53,10 @@ function showTodo(filter) {
     }
   });
   taskBox.innerHTML = taskHtml || `<span>You don't have any task here</span>`;
+
+  document.querySelectorAll(".completed-task .task-menu").forEach((menu) => {
+    menu.style.bottom = '-27px';
+  });
 }
 
 taskInput.addEventListener("keyup", (e) => {
@@ -80,7 +85,7 @@ function updateStatus(task) {
   const todos = getTodos();
   const todo = todos.find((todo) => todo.id === taskId);
 
-  if (!todo) return; // Prevent errors if todo is not found
+  if (!todo) return;
 
   todo.status = task.checked ? "completed" : "pending";
   saveTodos(todos);
@@ -103,8 +108,6 @@ function showMenu(selectedTask) {
 
 }
 
-
-
 function deleteTask(taskId) {
   const todos = getTodos();
   const updatedTodos = todos.filter((todo) => todo.id !== taskId);
@@ -120,109 +123,16 @@ clearAll.addEventListener("click", () => {
 });
 
 function editTask(taskId, taskName) {
-  taskInput.value = taskName;
-  editId = taskId;
-  taskInput.focus();
+  const todos = getTodos();
+  const todo = todos.find((todo) => todo.id === taskId);
+
+  if (todo && todo.status !== "completed") {
+    taskInput.value = taskName;
+    editId = taskId;
+    taskInput.focus();
+  }
 }
 
 // Load tasks on page load
 showTodo("all");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// document.addEventListener('DOMContentLoaded', () => {
-//   loadTasks();
-//   document.getElementById('addTaskButton').addEventListener('click', addTask);
-// });
-
-// function addTask() {
-//   const taskInput = document.getElementById('taskInput');
-//   const taskText = taskInput.value.trim();
-
-//   if (taskText === '') return;
-
-//   const taskList = document.getElementById('taskList');
-//   const li = document.createElement('li');
-
-//   li.innerHTML = `<span onclick="toggleTask(this)">${taskText}</span>
-//                     <button onclick="editTask(this)">✍️</button>
-//                   <button onclick="deleteTask(this)">🗑️</button>`;
-
-//   taskList.appendChild(li);
-//   taskInput.value = '';
-//   saveTasks();
-// };
-
-// function toggleTask(element) {
-//   element.classList.toggle('completed');
-//   saveTasks();
-// };
-
-// function editTask(button) {
-//   const span = button.parentElement.querySelector('span');
-//   const newText = prompt('Edit the task:', span.textContent);
-
-//   if (newText !== null && newText.trim() !== '') {
-//     span.textContent = newText.trim();
-//     saveTasks();
-//   }
-// };
-
-// function deleteTask(button) {
-//   button.parentElement.remove();
-//   saveTasks();
-// };
-
-// function saveTasks() {
-//   let tasks = [];
-//   document.querySelectorAll("#taskList li").forEach(li => {
-//     tasks.push({ text: li.querySelector("span").textContent.trim(), completed: li.querySelector("span").classList.contains("completed") });
-//   });
-//   localStorage.setItem("tasks", JSON.stringify(tasks));
-// }
-
-// function loadTasks() {
-//   const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-//   const taskList = document.getElementById('taskList');
-
-//   taskList.innerHTML = '';
-
-//   tasks.forEach((task) => {
-//     const li = document.createElement('li');
-
-//     li.innerHTML = `<span onclick="toggleTask(this)" class="${task.completed ? 'completed' : ''}">${task.text}</span> 
-//                                 <button onclick="editTask(this)">✍️</button>
-//                                 <button onclick="deleteTask(this)">🗑️</button>`;
-
-//     taskList.appendChild(li);
-//   });
-// };
 
